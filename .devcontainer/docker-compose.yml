@@ -1,0 +1,13 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ../:/app
+    tty: true
+    image: input-attendance
+    container_name: app
+    environment:
+      TZ: 'Asia/Tokyo'
+    network_mode: 'host'

@@ -18,5 +18,5 @@
   "engines": {
     "node": ">=18"
   },
-  "name": "with-tailwind"
+  "name": "input-attendance"
 }
