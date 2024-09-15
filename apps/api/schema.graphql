@@ -1,0 +1,19 @@
+schema {
+  query: Query
+}
+
+type Query {
+  test1: Response
+  test2: Response
+  getData: [GetDataResponse]
+}
+
+type Response {
+  statusCode: Int!
+  body: String!
+}
+
+type GetDataResponse {
+  id: String!
+  title: String!
+}

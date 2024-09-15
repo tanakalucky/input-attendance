@@ -1,0 +1,41 @@
+{
+  "service": "turborepo-boilerplate",
+  "dockerComposeFile": "../docker-compose.yml",
+  "portsAttributes": {
+    "onAutoForward": {
+      "label": "Application",
+      "onAutoForward": "ignore"
+    }
+  },
+  "workspaceFolder": "/turborepo-boilerplate",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "eamodio.gitlens",
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "GraphQL.vscode-graphql-syntax",
+        "HashiCorp.terraform"
+      ],
+      "settings": {
+        "prettier.configPath": ".prettierrc.json",
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+          "source.fixAll.eslint": "explicit"
+        },
+        "editor.tabSize": 2,
+        "[terraform]": {
+          "editor.defaultFormatter": "hashicorp.terraform",
+          "editor.formatOnSave": true,
+          "editor.formatOnSaveMode": "file"
+        },
+        "[terraform-vars]": {
+          "editor.defaultFormatter": "hashicorp.terraform",
+          "editor.formatOnSave": true,
+          "editor.formatOnSaveMode": "file"
+        }
+      }
+    }
+  }
+}

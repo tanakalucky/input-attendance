@@ -1,0 +1,119 @@
+name: Deploy Production
+
+env:
+  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+  VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+  AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
+  AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
+  REGION: 'ap-northeast-1'
+  APP_NAME: ${{ github.event.repository.name }}
+  DOMAIN: ${{ github.event.repository.name }}.tanakalucky.com
+  ENV: 'prod'
+  KEY: ${{ github.event.repository.name }}/production
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'apps/**'
+      - 'packages/**'
+
+jobs:
+  Deploy-Backend:
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.9.2
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - uses: pnpm/action-setup@v4
+
+      # Deploy Backend
+      - name: Generate backend.conf
+        run: |
+          cat <<EOF > backend.conf
+          key = "${KEY}"
+          region = "${REGION}"
+          access_key = "${AWS_ACCESS_KEY}"
+          secret_key = "${AWS_SECRET_KEY}"
+          EOF
+        working-directory: ./apps/api/terraform
+
+      - name: Terraform Init
+        run: terraform init -backend-config=backend.conf
+        working-directory: ./apps/api/terraform
+
+      - name: Generate terraform.tfvars
+        run: |
+          cat <<EOF > terraform.tfvars
+          app_name = "${APP_NAME}"
+          env = "${ENV}"
+          region = "${REGION}"
+          access_key = "${AWS_ACCESS_KEY}"
+          secret_key = "${AWS_SECRET_KEY}"
+          user_pool_id = "${{ secrets.COGNITO_USER_POOL_ID }}"
+          callback_url = "https://${DOMAIN}/api/auth/callback/cognito"
+          EOF
+        working-directory: ./apps/api/terraform
+
+      - name: Install Dependencies
+        run: pnpm i
+        working-directory: ./apps/api
+
+      - name: Build
+        run: pnpm build
+        working-directory: ./apps/api/
+
+      - name: Terraform Plan
+        run: terraform plan
+        working-directory: ./apps/api/terraform
+
+      - name: Terraform Apply
+        run: terraform apply -auto-approve
+        working-directory: ./apps/api/terraform
+
+      - name: Set Outputs
+        id: outputs
+        working-directory: ./apps/api/terraform
+        # When using multiple jobs, the cognito_issuer will be empty due to a secret warning.
+        run: |
+          echo "graphql_url=$(terraform output -raw graphql_url)" >> "$GITHUB_OUTPUT"
+          echo "cognito_client_id=$(terraform output -raw cognito_client_id)" >> "$GITHUB_OUTPUT"
+          echo "cognito_client_secret=$(terraform output -raw cognito_client_secret)" >> "$GITHUB_OUTPUT"
+          echo "cognito_issuer=$(terraform output -raw cognito_issuer)" >> "$GITHUB_OUTPUT"
+
+      # Deploy frontend
+      - name: Install Vercel CLI
+        run: pnpm i -g vercel@latest
+
+      - name: Set Vercel Environment Variables
+        env:
+          GRAPHQL_URL: ${{ steps.outputs.outputs.graphql_url }}
+          COGNITO_CLIENT_ID: ${{ steps.outputs.outputs.cognito_client_id }}
+          COGNITO_CLIENT_SECRET: ${{ steps.outputs.outputs.cognito_client_secret }}
+          COGNITO_ISSUER: ${{ steps.outputs.outputs.cognito_issuer }}
+        run: |
+          echo -n $GRAPHQL_URL | vercel env add NEXT_PUBLIC_GRAPHQL_URL production --force --token $VERCEL_TOKEN
+          echo -n $COGNITO_CLIENT_ID | vercel env add COGNITO_CLIENT_ID production --force --token $VERCEL_TOKEN
+          echo -n $COGNITO_CLIENT_SECRET | vercel env add COGNITO_CLIENT_SECRET production --force --token $VERCEL_TOKEN
+          echo -n $COGNITO_ISSUER | vercel env add COGNITO_ISSUER production --force --token $VERCEL_TOKEN
+          echo -n https://${DOMAIN} | vercel env add NEXTAUTH_URL production --force --token $VERCEL_TOKEN
+
+      - name: Pull Vercel Environment Information
+        run: vercel env pull ./apps/web/.env --yes --environment=production --token=$VERCEL_TOKEN
+
+      - name: Pull Vercel Project Settings
+        run: vercel pull --yes --environment=production --token=$VERCEL_TOKEN
+
+      - name: Build Project Artifacts
+        run: vercel build --prod --token=$VERCEL_TOKEN
+
+      - name: Deploy Project Artifacts to Vercel
+        run: vercel deploy --prebuilt --prod --token=$VERCEL_TOKEN
