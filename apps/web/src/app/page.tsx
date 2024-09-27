@@ -1,69 +1,139 @@
 'use client';
 
-import Image from 'next/image';
+import { useFieldArray, useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Form, FormControl, FormField } from '@repo/ui/components/ui/form';
+import { Select, SelectTrigger, SelectContent, SelectItem } from '@repo/ui/components/ui/select';
+import { Table, TableHeader, TableHead, TableBody, TableCell, TableRow } from '@repo/ui/components/ui/table';
+import { useState } from 'react';
+import { Input } from '@repo/ui/components/ui/input';
 import { Button } from '@repo/ui/components/ui/button';
-import { useQuery } from 'urql';
-import { graphql } from '../gql';
-import { signIn } from 'next-auth/react';
 
-function Gradient({ conic, className, small }: { small?: boolean; conic?: boolean; className?: string }): JSX.Element {
-  return (
-    <span
-      className={`absolute mix-blend-normal will-change-[filter] rounded-[100%] ${
-        small ? 'blur-[32px]' : 'blur-[75px]'
-      } ${conic ? 'bg-glow-conic' : ''} ${className}`}
-    />
-  );
-}
-
-const LINKS = [
-  {
-    title: 'Docs',
-    href: 'https://turbo.build/repo/docs',
-    description: 'Find in-depth information about Turborepo features and API.',
-  },
-  {
-    title: 'Learn',
-    href: 'https://turbo.build/repo/docs/handbook',
-    description: 'Learn more about monorepos with our handbook.',
-  },
-  {
-    title: 'Templates',
-    href: 'https://turbo.build/repo/docs/getting-started/from-example',
-    description: 'Choose from over 15 examples and deploy with a single click.',
-  },
-  {
-    title: 'Deploy',
-    href: 'https://vercel.com/new',
-    description: 'Instantly deploy your Turborepo to a shareable URL with Vercel.',
-  },
-];
-
-const testQueryDocument = graphql(`
-  query testQuery {
-    test1 {
-      statusCode
-      body
-    }
-
-    getData {
-      id
-      title
-    }
-  }
-`);
+import { formSchema, FormInput, FormOutput } from './form-schema';
+import { getTableContents } from './utils';
 
 export default function Page(): JSX.Element {
-  const [result, executeQuery] = useQuery({
-    query: testQueryDocument,
-    pause: true,
+  const [year, setYear] = useState('');
+  const [month, setMonth] = useState('');
+
+  const handleYearChange = (selectedYear: string) => {
+    setYear(selectedYear);
+  };
+
+  const handleMonthChange = (selectedMonth: string) => {
+    setMonth(selectedMonth);
+  };
+
+  const form = useForm<FormInput, unknown, FormOutput>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      attendance: [],
+    },
   });
 
-  console.log('test graphql ', result);
+  const { fields } = useFieldArray({
+    name: 'attendance',
+    control: form.control,
+  });
+
+  const generateTable = () => {
+    if (!year || !month) return;
+
+    const newTableData: FormInput['attendance'] = getTableContents(Number(year), Number(month));
+
+    form.setValue('attendance', newTableData);
+  };
 
   return (
     <main className='flex flex-col items-center justify-between min-h-screen p-24'>
-      <Button>テスト</Button>
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className='flex flex-col gap-3'>
+          <div className='flex gap-3'>
+            <Select onValueChange={handleYearChange}>
+              <SelectTrigger>Year</SelectTrigger>
+              <SelectContent>
+                <SelectItem value='2024'>2024</SelectItem>
+                <SelectItem value='2025'>2025</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Select onValueChange={handleMonthChange}>
+              <SelectTrigger>Month</SelectTrigger>
+              <SelectContent>
+                <SelectItem value='1'>January</SelectItem>
+                <SelectItem value='2'>February</SelectItem>
+                <SelectItem value='3'>March</SelectItem>
+                <SelectItem value='4'>April</SelectItem>
+                <SelectItem value='5'>May</SelectItem>
+                <SelectItem value='6'>June</SelectItem>
+                <SelectItem value='7'>July</SelectItem>
+                <SelectItem value='8'>August</SelectItem>
+                <SelectItem value='9'>September</SelectItem>
+                <SelectItem value='10'>October</SelectItem>
+                <SelectItem value='11'>Novenber</SelectItem>
+                <SelectItem value='12'>December</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Button onClick={generateTable}>generate</Button>
+          </div>
+          <Button type='submit'>Submit</Button>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Day</TableHead>
+                <TableHead>Start</TableHead>
+                <TableHead>End</TableHead>
+                <TableHead>Rest</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {fields.map((field, index) => (
+                <TableRow key={field.id}>
+                  <TableCell className='text-center'>{field.day}</TableCell>
+                  <TableCell>
+                    <FormField
+                      control={form.control}
+                      name={`attendance.${index}.start`}
+                      render={({ field }) => (
+                        <FormControl>
+                          <Input {...field} type='time' />
+                        </FormControl>
+                      )}
+                    ></FormField>
+                  </TableCell>
+                  <TableCell>
+                    <FormField
+                      control={form.control}
+                      name={`attendance.${index}.end`}
+                      render={({ field }) => (
+                        <FormControl>
+                          <Input {...field} type='time' />
+                        </FormControl>
+                      )}
+                    ></FormField>
+                  </TableCell>
+                  <TableCell>
+                    <FormField
+                      control={form.control}
+                      name={`attendance.${index}.rest`}
+                      render={({ field }) => (
+                        <FormControl>
+                          <Input {...field} type='time' />
+                        </FormControl>
+                      )}
+                    ></FormField>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </form>
+      </Form>
     </main>
   );
 }
+
+const onSubmit = (values: FormOutput): void => {
+  console.log(values);
+};
