@@ -7,7 +7,7 @@ services:
       - ../:/app
     tty: true
     image: input-attendance
-    container_name: app
+    container_name: input-attendance-container
     environment:
       TZ: 'Asia/Tokyo'
     network_mode: 'host'
