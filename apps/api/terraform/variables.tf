@@ -26,3 +26,7 @@ variable "callback_url" {
   type    = string
   default = "http://localhost:3000/api/auth/callback/cognito"
 }
+
+variable "image_uri" {
+  type = string
+}
