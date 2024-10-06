@@ -58,6 +58,11 @@ export const handler: Handler<{ year: number; month: number; attendanceJson?: st
     };
   } catch (error) {
     console.error('An error occurred:', error);
+
+    return {
+      statusCode: 500,
+      body: JSON.stringify('An error occurred'),
+    };
   } finally {
     console.log('Quitting the driver...');
     await driver.quit();
