@@ -48,7 +48,7 @@ resource "aws_iam_role_policy" "appsync_policy" {
 
 resource "aws_appsync_datasource" "this" {
   api_id           = aws_appsync_graphql_api.this.id
-  name             = "${var.app_name}_datasource"
+  name             = "${var.app_name}-datasource"
   service_role_arn = aws_iam_role.appsync_role.arn
   type             = "AWS_LAMBDA"
 
