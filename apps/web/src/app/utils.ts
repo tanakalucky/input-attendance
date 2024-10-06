@@ -1,18 +1,22 @@
 import { FormInput } from './form-schema';
 
-const SANDAY = 0;
+const SUNDAY = 0;
 const SATURDAY = 6;
 
 export const getTableContents = (year: number, month: number): FormInput['attendance'] => {
-  const daysInMonth = new Date(Number(year), Number(month), 0).getDate();
+  if (month < 1 || month > 12) {
+    throw new Error('Invalid month. Month must be between 1 and 12.');
+  }
+
+  const daysInMonth = new Date(year, month, 0).getDate();
 
   const newTableContents: FormInput['attendance'] = [];
 
   for (let day = 1; day <= daysInMonth; day++) {
-    const date = new Date(Number(year), Number(month) - 1, day);
+    const date = new Date(year, month - 1, day);
 
     const dayOfWeek = date.getDay();
-    if (dayOfWeek !== SANDAY && dayOfWeek !== SATURDAY) {
+    if (dayOfWeek !== SUNDAY && dayOfWeek !== SATURDAY) {
       newTableContents.push({
         day: day.toString(),
         start: '09:00',
