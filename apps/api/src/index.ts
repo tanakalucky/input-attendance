@@ -27,7 +27,7 @@ export const handler: Handler<{ year: number; month: number; attendanceJson?: st
   options.addArguments('--remote-debugging-pipe');
   options.addArguments('--window-size=1920,1080');
 
-  options.setBinaryPath('/opt/chrome/chrome-headless-shell-linux64/chrome-headless-shell');
+  options.setBinaryPath('/opt/chrome/chrome-linux64/chrome');
 
   const serviceBuilder = new chrome.ServiceBuilder('/opt/chrome-driver/chromedriver-linux64/chromedriver');
 
