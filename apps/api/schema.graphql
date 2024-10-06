@@ -1,19 +1,12 @@
 schema {
-  query: Query
+  query: Mutation
 }
 
-type Query {
-  test1: Response
-  test2: Response
-  getData: [GetDataResponse]
+type Mutation {
+  inputAttendance(year: Int!, month: Int!, attendances: String): Response
 }
 
 type Response {
   statusCode: Int!
   body: String!
-}
-
-type GetDataResponse {
-  id: String!
-  title: String!
 }

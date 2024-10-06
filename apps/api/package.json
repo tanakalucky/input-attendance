@@ -4,14 +4,22 @@
   "private": true,
   "scripts": {
     "dev": "echo 'Add dev script here'",
-    "build": "node build.mjs",
+    "build": "tsc -noEmit && esbuild src/index.ts --bundle --tsconfig=tsconfig.json --platform=node --outfile=dist/index.js --minify",
     "test": "echo 'Add test script here'",
     "lint": "echo 'Add lint script here'"
   },
   "devDependencies": {
     "@aws-sdk/client-dynamodb": "^3.624.0",
+    "@aws-sdk/client-ssm": "^3.665.0",
     "@aws-sdk/lib-dynamodb": "^3.624.0",
+    "@tsconfig/node20": "^20.1.4",
     "@types/aws-lambda": "^8.10.141",
-    "esbuild": "^0.23.0"
+    "@types/node": "^22.7.4",
+    "@types/selenium-webdriver": "4.1.23",
+    "esbuild": "^0.23.0",
+    "typescript": "^5.6.2"
+  },
+  "dependencies": {
+    "selenium-webdriver": "4.23.0"
   }
 }

@@ -11,6 +11,7 @@ env:
   DOMAIN: ${{ github.event.repository.name }}.tanakalucky.com
   ENV: 'prod'
   KEY: ${{ github.event.repository.name }}/production
+  IMAGE_URI: ${{ secrets.IMAGE_URI }}
 
 on:
   push:
@@ -60,6 +61,7 @@ jobs:
           secret_key = "${AWS_SECRET_KEY}"
           user_pool_id = "${{ secrets.COGNITO_USER_POOL_ID }}"
           callback_url = "https://${DOMAIN}/api/auth/callback/cognito"
+          image_uri = "${IMAGE_URI}"
           EOF
         working-directory: ./apps/api/terraform
 

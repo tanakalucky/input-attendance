@@ -8,19 +8,14 @@ env:
   AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
   REGION: 'ap-northeast-1'
   APP_NAME: ${{ github.event.repository.name }}
-  DOMAIN: dev.${{ github.event.repository.name }}.tanakalucky.com
-  ENV: 'dev'
-  KEY: ${{ github.event.repository.name }}/develop
+  DOMAIN: stage.${{ github.event.repository.name }}.tanakalucky.com
+  ENV: 'stage'
+  KEY: ${{ github.event.repository.name }}/stage
+  IMAGE_URI: ${{ secrets.IMAGE_URI }}
 
 on:
-  push:
-    branches:
-      - develop
-    paths:
-      - 'apps/**'
-      - 'packages/**'
-
-  workflow_dispatch:
+  pull_request:
+    types: [review_requested]
 
 jobs:
   Deploy:
@@ -62,6 +57,7 @@ jobs:
           secret_key = "${AWS_SECRET_KEY}"
           user_pool_id = "${{ secrets.COGNITO_USER_POOL_ID }}"
           callback_url = "https://${DOMAIN}/api/auth/callback/cognito"
+          image_uri = "${IMAGE_URI}"
           EOF
         working-directory: ./apps/api/terraform
 
