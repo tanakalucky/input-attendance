@@ -38,7 +38,7 @@ function App() {
   return (
     <div className='min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 py-4'>
       <div className='max-w-2xl mx-auto bg-gray-800/80 backdrop-blur-sm rounded-xl shadow-2xl border border-gray-700/50 p-8'>
-        <h1 className='text-3xl font-bold text-center mb-8 text-gray-100 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent'>
+        <h1 className='text-3xl font-bold text-center mb-8 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent'>
           Attendance Input
         </h1>
 
