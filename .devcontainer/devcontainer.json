@@ -1,5 +1,5 @@
 {
-  "name": "hono-app-boilerplate",
+  "name": "input-attendance",
   "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
   "forwardPorts": [5173],
   "workspaceFolder": "/app",
