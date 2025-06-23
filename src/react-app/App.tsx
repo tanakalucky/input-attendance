@@ -3,7 +3,7 @@
 import { useActionState } from 'react';
 
 async function submitAttendance(
-  prevState: { success: boolean; message: string } | null,
+  _prevState: { success: boolean; message: string } | null,
   formData: FormData,
 ) {
   const loginId = formData.get('login_id') as string;
