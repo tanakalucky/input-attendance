@@ -1,15 +1,36 @@
 // src/App.tsx
 
-import { useActionState } from 'react';
+import { useState } from 'react';
+import * as v from 'valibot';
+import { AttendanceInputSchema } from '../schema';
 
-async function submitAttendance(
-  _prevState: { success: boolean; message: string } | null,
-  formData: FormData,
-) {
+async function submitAttendance(formData: FormData) {
   const loginId = formData.get('login_id') as string;
   const password = formData.get('password') as string;
   const attendances = formData.get('attendances') as string;
 
+  try {
+    const validationResult = v.safeParse(AttendanceInputSchema, {
+      loginId,
+      loginPw: password,
+      attendances,
+    });
+
+    if (!validationResult.success) {
+      const errorMessages = validationResult.issues
+        .map((issue) => issue.message)
+        .join(', ');
+      return {
+        success: false,
+        message: `Validation error: ${errorMessages}`,
+      };
+    }
+  } catch (error) {
+    return {
+      success: false,
+      message: 'Invalid input data format',
+    };
+  }
   try {
     const response = await fetch('/api/attendance', {
       method: 'POST',
@@ -33,7 +54,22 @@ async function submitAttendance(
 }
 
 function App() {
-  const [state, formAction, isPending] = useActionState(submitAttendance, null);
+  const [state, setState] = useState<{
+    success: boolean;
+    message: string;
+  } | null>(null);
+  const [isPending, setIsPending] = useState(false);
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setIsPending(true);
+
+    const formData = new FormData(event.currentTarget);
+    const result = await submitAttendance(formData);
+
+    setState(result);
+    setIsPending(false);
+  };
 
   return (
     <div className='min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 py-4'>
@@ -42,7 +78,7 @@ function App() {
           Attendance Input
         </h1>
 
-        <form action={formAction} className='space-y-6'>
+        <form onSubmit={handleSubmit} className='space-y-6'>
           <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
             <div>
               <label
