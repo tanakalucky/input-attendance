@@ -1,4 +1,8 @@
-export type Env = Record<string, unknown>;
+import type { BrowserWorker } from '@cloudflare/playwright';
+
+export type Env = {
+  MYBROWSER: BrowserWorker;
+};
 
 // Type guard for environment validation
 export function validateEnv(env: unknown): env is Env {
