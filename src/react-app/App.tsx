@@ -38,8 +38,8 @@ async function submitAttendance(formData: FormData) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        login_id: loginId,
-        password: password,
+        loginId: loginId,
+        loginPw: password,
         attendances: attendances,
       }),
     });

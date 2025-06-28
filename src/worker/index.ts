@@ -1,6 +1,8 @@
+import { vValidator } from '@hono/valibot-validator';
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { logger } from 'hono/logger';
+import { AttendanceInputSchema } from '../schema';
 import type { Env } from './env';
 
 const app = new Hono<{ Bindings: Env }>();
@@ -22,6 +24,18 @@ app.get('/api/', (c) => c.json({ name: 'Cloudflare', version: '1.0.0' }));
 app.get('/api/health', (c) =>
   c.json({ status: 'ok', timestamp: new Date().toISOString() }),
 );
+
+app.post('/api/attendance', vValidator('json', AttendanceInputSchema), (c) => {
+  console.log('Received attendance data:', c.req);
+  const data = c.req.valid('json');
+
+  console.log('Received attendance data:', data);
+
+  return c.json({
+    success: true,
+    message: 'Attendance data received successfully',
+  });
+});
 
 // 404 handler for API routes
 app.notFound((c) => {
