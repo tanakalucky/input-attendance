@@ -4,7 +4,7 @@ import {
   type Page,
   launch,
 } from '@cloudflare/playwright';
-import type { ValidatedAttendanceInput } from './schema';
+import type { ValidatedAttendanceInput } from '../schema';
 
 export const getBrowser = async (
   browserWorker: BrowserWorker,
