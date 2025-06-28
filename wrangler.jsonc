@@ -7,7 +7,7 @@
   "name": "input-attendance",
   "main": "./src/worker/index.ts",
   "compatibility_date": "2025-04-01",
-  "compatibility_flags": ["nodejs_compat"],
+  "compatibility_flags": ["nodejs_compat_v2"],
   "observability": {
     "enabled": true
   },
