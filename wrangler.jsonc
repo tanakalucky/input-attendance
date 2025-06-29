@@ -8,7 +8,6 @@
   "main": "./src/worker/index.ts",
   "compatibility_date": "2025-04-01",
   "compatibility_flags": ["nodejs_compat_v2"],
-  "no_bundle": false,
   "observability": {
     "enabled": true
   },
