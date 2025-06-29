@@ -1,7 +1,7 @@
 {
   "name": "input-attendance",
   "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
-  "forwardPorts": [5173],
+  "forwardPorts": [5173, 8976],
   "workspaceFolder": "/app",
   "features": {
     "ghcr.io/devcontainers/features/common-utils:2": {
